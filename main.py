@@ -58,24 +58,53 @@ class TurnBasedCardGame(BoxLayout):
             # ลด HP ของศัตรู
             self.enemy_hp = max(0, self.enemy_hp - card_value)
             self.enemy_hp_bar.value = self.enemy_hp
-            print(f"โจมตีศัตรู: {card_value} HP เหลือ {self.enemy_hp}")
+            print(f"ATTACKING: {card_value} HP {self.enemy_hp}")
         elif card_type == "HEAL":
             # เพิ่ม HP ของผู้เล่น
             self.player_hp = min(100, self.player_hp + card_value)
             self.player_hp_bar.value = self.player_hp
             print(f"HEAL PLAYER: {card_value} HP {self.player_hp}")
+        self.check_game_over()
+
+        def enemy_turn(self):
+            if self.enemy_hp > 0:
+                card_type = random.choice(["ATTACK", "HEAL"])
+                card_value = random.randint(5, 20)
+            if card_type == "โจมตี":
+                # โจมตีผู้เล่น
+                self.player_hp = max(0, self.player_hp - card_value)
+                self.player_hp_bar.value = self.player_hp
+                print(f"ATTACKING: {card_value} HP {self.player_hp}")
+            elif card_type == "ฟื้นฟู":
+                # ฟื้นฟู HP ของศัตรู
+                self.enemy_hp = min(100, self.enemy_hp + card_value)
+                self.enemy_hp_bar.value = self.enemy_hp
+                print(f"ENEMY HEAL: {card_value} HP {self.enemy_hp}")
+
+            # ตรวจสอบเงื่อนไขจบเกม
+            self.check_game_over()
 
     def end_turn(self, instance):
-        # ฟังก์ชันสำหรับสิ้นสุดเทิร์น
-        print("END OF TURN! ENEMY ATTACKING...")
-
-        # ตัวอย่างลด HP ของผู้เล่นเมื่อศัตรูโจมตี
-        damage = 10
-        self.player_hp = max(0, self.player_hp - damage)
-        self.player_hp_bar.value = self.player_hp
-        print(f"PLAYER TAKE DAMAGE: {damage} HP: {self.player_hp}")
-
+        """ฟังก์ชันสำหรับสิ้นสุดเทิร์น"""
+        print("END O TURN! ENEMY PLAYING...")
+        self.enemy_turn()
         self.generate_cards()
+
+    def check_game_over(self):
+        """ตรวจสอบเงื่อนไขจบเกม"""
+        if self.player_hp == 0:
+            self.show_game_over("LOSE!")
+        elif self.enemy_hp == 0:
+            self.show_game_over("WIN!")
+
+    def show_game_over(self, result):
+        """แสดงข้อความจบเกม"""
+        popup = Popup(
+            title="GAME OVER",
+            content=Label(text=result, font_size=24),
+            size_hint=(0.6, 0.4),
+        )
+        popup.open()
 
 
 class CardGameApp(App):
