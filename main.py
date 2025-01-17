@@ -16,6 +16,7 @@ class TurnBasedCardGame(BoxLayout):
         self.enemy_hp = 100  # พลังชีวิตของศัตรู
         self.player_defense = 0  # สถานะป้องกันของผู้เล่น
         self.enemy_attack_debuff = 0  # สถานะลดพลังโจมตีของศัตรู
+        self.score = 0  # คะแนนของผู้เล่น
 
         # ส่วนแสดง HP ศัตรู
         self.add_widget(Label(text="ENEMY HP", font_size=20))
@@ -26,6 +27,10 @@ class TurnBasedCardGame(BoxLayout):
         self.add_widget(Label(text="PLAYER HP", font_size=20))
         self.player_hp_bar = ProgressBar(max=100, value=self.player_hp)
         self.add_widget(self.player_hp_bar)
+
+        # ส่วนแสดงคะแนน
+        self.score_label = Label(text=f"Score: {self.score}", font_size=20)
+        self.add_widget(self.score_label)
 
         # ส่วนแสดงการ์ดของผู้เล่น
         self.cards_area = BoxLayout(size_hint=(1, 0.6))
@@ -45,7 +50,7 @@ class TurnBasedCardGame(BoxLayout):
         """สุ่มการ์ดและแสดงในพื้นที่การ์ด"""
         self.cards_area.clear_widgets()
         for _ in range(3):  # แสดงการ์ด 3 ใบในแต่ละเทิร์น
-            card_type = random.choice(["ATTACK", "HEAL", "DEFENT", "DEBUFF"])
+            card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF"])
             card_value = random.randint(5, 20)
             card_text = f"{card_type} {card_value} HP"
 
@@ -62,17 +67,24 @@ class TurnBasedCardGame(BoxLayout):
         if card_type == "ATTACK":
             self.enemy_hp = max(0, self.enemy_hp - card_value)
             self.enemy_hp_bar.value = self.enemy_hp
+            self.score += 10  # เพิ่มคะแนนเมื่อโจมตี
             print(f"ATTACKING ENEMY: {card_value} HP {self.enemy_hp}")
         elif card_type == "HEAL":
             self.player_hp = min(100, self.player_hp + card_value)
             self.player_hp_bar.value = self.player_hp
+            self.score += 5  # เพิ่มคะแนนเมื่อฟื้นฟู
             print(f"HEAL PLAYER: {card_value} HP {self.player_hp}")
-        elif card_type == "DEFENT":
+        elif card_type == "DEFEND":
             self.player_defense = card_value
-            print(f"DEFENT ACTIVATE {card_value} UNIT NEXT ROUND")
-        elif card_type == "DEBUFE":
+            self.score -= 2  # ลดคะแนนเมื่อใช้การ์ดป้องกัน
+            print(f"DEFEND ACTIVATE {card_value} UNIT NEXT ROUND")
+        elif card_type == "DEBUFF":
             self.enemy_attack_debuff = card_value
-            print(f"DEBUFE {card_value} UNIT NEXT ROUND")
+            self.score -= 2  # ลดคะแนนเมื่อใช้การ์ดลดพลังโจมตี
+            print(f"DEBUFF {card_value} UNIT NEXT ROUND")
+
+        # อัปเดตคะแนนใน UI
+        self.update_score()
 
         # ตรวจสอบเงื่อนไขจบเกม
         self.check_game_over()
@@ -91,6 +103,7 @@ class TurnBasedCardGame(BoxLayout):
                 self.player_hp = max(0, self.player_hp - damage)
                 self.player_hp_bar.value = self.player_hp
                 print(f"ENEMY ATTACKING: {card_value} HP {damage} ")
+                self.score -= 5  # ลดคะแนนเมื่อโดนโจมตี
             elif card_type == "HEAL":
                 self.enemy_hp = min(100, self.enemy_hp + card_value)
                 self.enemy_hp_bar.value = self.enemy_hp
@@ -99,6 +112,9 @@ class TurnBasedCardGame(BoxLayout):
             # ล้างสถานะป้องกันและลดพลังโจมตี
             self.player_defense = 0
             self.enemy_attack_debuff = 0
+
+            # อัปเดตคะแนนใน UI
+            self.update_score()
 
             # ตรวจสอบเงื่อนไขจบเกม
             self.check_game_over()
@@ -116,11 +132,15 @@ class TurnBasedCardGame(BoxLayout):
         elif self.enemy_hp == 0:
             self.show_game_over("WIN!")
 
+    def update_score(self):
+        """อัปเดตคะแนนใน UI"""
+        self.score_label.text = f"Score: {self.score}"
+
     def show_game_over(self, result):
         """แสดงข้อความจบเกม"""
         popup = Popup(
             title="GAME OVER",
-            content=Label(text=result, font_size=24),
+            content=Label(text=f"{result}\nFinal Score: {self.score}", font_size=24),
             size_hint=(0.6, 0.4),
         )
         popup.open()
