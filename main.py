@@ -12,12 +12,12 @@ class TurnBasedCardGame(BoxLayout):
         super().__init__(orientation="vertical", **kwargs)
 
         # พลังชีวิตและสถานะ
-        self.player_hp = 100  # พลังชีวิตของผู้เล่น
-        self.enemy_hp = 100  # พลังชีวิตของศัตรู
-        self.player_defense = 0  # สถานะป้องกันของผู้เล่น
-        self.enemy_attack_debuff = 0  # สถานะลดพลังโจมตีของศัตรู
-        self.score = 0  # คะแนนของผู้เล่น
-        self.card_used = False  # สถานะว่าผู้เล่นใช้การ์ดในเทิร์นนี้แล้วหรือไม่
+        self.player_hp = 100
+        self.enemy_hp = 100
+        self.player_defense = 0
+        self.enemy_attack_debuff = 0
+        self.score = 0
+        self.card_used = False
 
         # ส่วนแสดง HP ศัตรู
         self.add_widget(Label(text="ENEMY HP", font_size=20))
@@ -49,9 +49,9 @@ class TurnBasedCardGame(BoxLayout):
 
     def generate_cards(self):
         """สุ่มการ์ดและแสดงในพื้นที่การ์ด"""
-        self.card_used = False  # รีเซ็ตสถานะเมื่อเริ่มเทิร์นใหม่
+        self.card_used = False
         self.cards_area.clear_widgets()
-        for _ in range(3):  # แสดงการ์ด 3 ใบในแต่ละเทิร์น
+        for _ in range(3):
             card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF"])
             card_value = random.randint(5, 20)
             card_text = f"{card_type} {card_value} HP"
@@ -64,36 +64,42 @@ class TurnBasedCardGame(BoxLayout):
             )
             self.cards_area.add_widget(card_button)
 
+    def show_notification(self, message):
+        """แสดงหน้าต่างแจ้งเตือน"""
+        popup = Popup(
+            title="Notification",
+            content=Label(text=message, font_size=20),
+            size_hint=(0.6, 0.4),
+        )
+        popup.open()
+
     def use_card(self, card_type, card_value):
         """การใช้การ์ด"""
         if self.card_used:
-            print("Card already used this turn!")
-            return  # ป้องกันไม่ให้ใช้การ์ดซ้ำในเทิร์นเดียวกัน
+            self.show_notification("You have already used a card this turn!")
+            return
 
         if card_type == "ATTACK":
             self.enemy_hp = max(0, self.enemy_hp - card_value)
             self.enemy_hp_bar.value = self.enemy_hp
-            self.score += 10  # เพิ่มคะแนนเมื่อโจมตี
-            print(f"ATTACKING ENEMY: {card_value} HP {self.enemy_hp}")
+            self.score += 10
         elif card_type == "HEAL":
             self.player_hp = min(100, self.player_hp + card_value)
             self.player_hp_bar.value = self.player_hp
-            self.score += 5  # เพิ่มคะแนนเมื่อฟื้นฟู
-            print(f"HEAL PLAYER: {card_value} HP {self.player_hp}")
+            self.score += 5
         elif card_type == "DEFEND":
             self.player_defense = card_value
-            self.score -= 2  # ลดคะแนนเมื่อใช้การ์ดป้องกัน
-            print(f"DEFEND ACTIVATE {card_value} UNIT NEXT ROUND")
+            self.score -= 2
         elif card_type == "DEBUFF":
             self.enemy_attack_debuff = card_value
-            self.score -= 2  # ลดคะแนนเมื่อใช้การ์ดลดพลังโจมตี
-            print(f"DEBUFF {card_value} UNIT NEXT ROUND")
+            self.score -= 2
 
-        # อัปเดตคะแนนใน UI
         self.update_score()
-        self.card_used = True  # ตั้งสถานะว่าใช้การ์ดในเทิร์นนี้แล้ว
+        self.card_used = True
 
-        # ตรวจสอบเงื่อนไขจบเกม
+        if self.player_hp <= 20:
+            self.show_notification("Warning: Your HP is critically low!")
+
         self.check_game_over()
 
     def enemy_turn(self):
@@ -103,32 +109,27 @@ class TurnBasedCardGame(BoxLayout):
             card_value = random.randint(5, 20)
 
             if card_type == "ATTACK":
-                # ใช้ระบบป้องกันและลดพลังโจมตี
                 damage = max(
                     0, card_value - self.player_defense - self.enemy_attack_debuff
                 )
                 self.player_hp = max(0, self.player_hp - damage)
                 self.player_hp_bar.value = self.player_hp
-                print(f"ENEMY ATTACKING: {card_value} HP {damage} ")
-                self.score -= 5  # ลดคะแนนเมื่อโดนโจมตี
             elif card_type == "HEAL":
                 self.enemy_hp = min(100, self.enemy_hp + card_value)
                 self.enemy_hp_bar.value = self.enemy_hp
-                print(f"ENEMY HEAL: {card_value} HP {self.enemy_hp}")
 
-            # ล้างสถานะป้องกันและลดพลังโจมตี
             self.player_defense = 0
             self.enemy_attack_debuff = 0
 
-            # อัปเดตคะแนนใน UI
             self.update_score()
-
-            # ตรวจสอบเงื่อนไขจบเกม
             self.check_game_over()
 
     def end_turn(self, instance):
         """ฟังก์ชันสำหรับสิ้นสุดเทิร์น"""
-        print("END OF TURN! ENEMY PLAYING...")
+        if not self.card_used:
+            self.show_notification("Please use a card before ending your turn.")
+            return
+
         self.enemy_turn()
         self.generate_cards()
 
