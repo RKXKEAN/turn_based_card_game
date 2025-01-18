@@ -5,6 +5,32 @@ from kivy.uix.progressbar import ProgressBar
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
+from kivy.uix.screenmanager import Screen, ScreenManager
+
+
+class WelcomeScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        layout = BoxLayout(orientation="vertical", spacing=20, padding=50)
+
+        welcome_label = Label(text="Shadow Arena: Card Wars", font_size=32)
+        play_button = Button(text="Play", font_size=24, size_hint=(0.5, 0.2))
+        play_button.bind(on_press=self.start_game)
+
+        layout.add_widget(welcome_label)
+        layout.add_widget(play_button)
+        self.add_widget(layout)
+
+    def start_game(self, instance):
+        """เปลี่ยนไปยังหน้าจอเกม"""
+        self.manager.current = "game"
+
+
+class TurnBasedCardGameScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.layout = TurnBasedCardGame()
+        self.add_widget(self.layout)
 
 
 class TurnBasedCardGame(BoxLayout):
@@ -156,7 +182,10 @@ class TurnBasedCardGame(BoxLayout):
 
 class CardGameApp(App):
     def build(self):
-        return TurnBasedCardGame()
+        sm = ScreenManager()
+        sm.add_widget(WelcomeScreen(name="welcome"))
+        sm.add_widget(TurnBasedCardGameScreen(name="game"))
+        return sm
 
 
 if __name__ == "__main__":
