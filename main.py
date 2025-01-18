@@ -17,6 +17,7 @@ class TurnBasedCardGame(BoxLayout):
         self.player_defense = 0  # สถานะป้องกันของผู้เล่น
         self.enemy_attack_debuff = 0  # สถานะลดพลังโจมตีของศัตรู
         self.score = 0  # คะแนนของผู้เล่น
+        self.card_used = False  # สถานะว่าผู้เล่นใช้การ์ดในเทิร์นนี้แล้วหรือไม่
 
         # ส่วนแสดง HP ศัตรู
         self.add_widget(Label(text="ENEMY HP", font_size=20))
@@ -48,6 +49,7 @@ class TurnBasedCardGame(BoxLayout):
 
     def generate_cards(self):
         """สุ่มการ์ดและแสดงในพื้นที่การ์ด"""
+        self.card_used = False  # รีเซ็ตสถานะเมื่อเริ่มเทิร์นใหม่
         self.cards_area.clear_widgets()
         for _ in range(3):  # แสดงการ์ด 3 ใบในแต่ละเทิร์น
             card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF"])
@@ -64,6 +66,10 @@ class TurnBasedCardGame(BoxLayout):
 
     def use_card(self, card_type, card_value):
         """การใช้การ์ด"""
+        if self.card_used:
+            print("Card already used this turn!")
+            return  # ป้องกันไม่ให้ใช้การ์ดซ้ำในเทิร์นเดียวกัน
+
         if card_type == "ATTACK":
             self.enemy_hp = max(0, self.enemy_hp - card_value)
             self.enemy_hp_bar.value = self.enemy_hp
@@ -85,6 +91,7 @@ class TurnBasedCardGame(BoxLayout):
 
         # อัปเดตคะแนนใน UI
         self.update_score()
+        self.card_used = True  # ตั้งสถานะว่าใช้การ์ดในเทิร์นนี้แล้ว
 
         # ตรวจสอบเงื่อนไขจบเกม
         self.check_game_over()
