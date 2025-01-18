@@ -1,43 +1,53 @@
 import random
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.progressbar import ProgressBar
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.progressbar import ProgressBar
 from kivy.uix.popup import Popup
-from kivy.uix.screenmanager import Screen, ScreenManager
 
 
-class WelcomeScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        layout = BoxLayout(orientation="vertical", spacing=20, padding=50)
+class StartScreen(BoxLayout):
+    def __init__(self, start_game_callback, **kwargs):
+        super().__init__(orientation="vertical", **kwargs)
+        self.spacing = 20
+        self.padding = [50, 50, 50, 50]  # [left, top, right, bottom]
 
-        welcome_label = Label(text="Shadow Arena: Card Wars", font_size=32)
-        play_button = Button(text="Play", font_size=24, size_hint=(0.5, 0.2))
-        play_button.bind(on_press=self.start_game)
+        # เพิ่ม BoxLayout กลางหน้าจอ
+        center_layout = BoxLayout(
+            orientation="vertical",
+            size_hint=(0.5, 0.5),
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+        )
 
-        layout.add_widget(welcome_label)
-        layout.add_widget(play_button)
-        self.add_widget(layout)
+        # ชื่อเกม
+        title_label = Label(
+            text="Battle Deck Chronicles",
+            font_size=40,
+            bold=True,
+            color=[1, 1, 1, 1],
+            size_hint=(1, 0.5),
+        )
+        center_layout.add_widget(title_label)
 
-    def start_game(self, instance):
-        """เปลี่ยนไปยังหน้าจอเกม"""
-        self.manager.current = "game"
+        # ปุ่ม Play
+        play_button = Button(
+            text="Play",
+            size_hint=(1, 0.1),
+            font_size=30,
+            background_color=[0, 0.5, 1, 1],
+            color=[1, 1, 1, 1],
+        )
+        play_button.bind(on_press=start_game_callback)
+        center_layout.add_widget(play_button)
 
-
-class TurnBasedCardGameScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.layout = TurnBasedCardGame()
-        self.add_widget(self.layout)
+        self.add_widget(center_layout)
 
 
 class TurnBasedCardGame(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(orientation="vertical", **kwargs)
 
-        # พลังชีวิตและสถานะ
         self.player_hp = 100
         self.enemy_hp = 100
         self.player_defense = 0
@@ -45,36 +55,34 @@ class TurnBasedCardGame(BoxLayout):
         self.score = 0
         self.card_used = False
 
-        # ส่วนแสดง HP ศัตรู
+        # Enemy HP
         self.add_widget(Label(text="ENEMY HP", font_size=20))
         self.enemy_hp_bar = ProgressBar(max=100, value=self.enemy_hp)
         self.add_widget(self.enemy_hp_bar)
 
-        # ส่วนแสดง HP ผู้เล่น
+        # Player HP
         self.add_widget(Label(text="PLAYER HP", font_size=20))
         self.player_hp_bar = ProgressBar(max=100, value=self.player_hp)
         self.add_widget(self.player_hp_bar)
 
-        # ส่วนแสดงคะแนน
+        # Score
         self.score_label = Label(text=f"Score: {self.score}", font_size=20)
         self.add_widget(self.score_label)
 
-        # ส่วนแสดงการ์ดของผู้เล่น
+        # Cards
         self.cards_area = BoxLayout(size_hint=(1, 0.6))
         self.add_widget(self.cards_area)
 
-        # ปุ่มสำหรับจบเทิร์น
+        # End turn button
         self.end_turn_button = Button(
             text="END OF TURN", size_hint=(1, 0.2), font_size=18
         )
         self.end_turn_button.bind(on_press=self.end_turn)
         self.add_widget(self.end_turn_button)
 
-        # สุ่มการ์ดเมื่อเริ่มเกม
         self.generate_cards()
 
     def generate_cards(self):
-        """สุ่มการ์ดและแสดงในพื้นที่การ์ด"""
         self.card_used = False
         self.cards_area.clear_widgets()
         for _ in range(3):
@@ -91,7 +99,6 @@ class TurnBasedCardGame(BoxLayout):
             self.cards_area.add_widget(card_button)
 
     def show_notification(self, message):
-        """แสดงหน้าต่างแจ้งเตือน"""
         popup = Popup(
             title="Notification",
             content=Label(text=message, font_size=20),
@@ -100,7 +107,6 @@ class TurnBasedCardGame(BoxLayout):
         popup.open()
 
     def use_card(self, card_type, card_value):
-        """การใช้การ์ด"""
         if self.card_used:
             self.show_notification("You have already used a card this turn!")
             return
@@ -122,14 +128,9 @@ class TurnBasedCardGame(BoxLayout):
 
         self.update_score()
         self.card_used = True
-
-        if self.player_hp <= 20:
-            self.show_notification("Warning: Your HP is critically low!")
-
         self.check_game_over()
 
     def enemy_turn(self):
-        """เทิร์นของศัตรู"""
         if self.enemy_hp > 0:
             card_type = random.choice(["ATTACK", "HEAL"])
             card_value = random.randint(5, 20)
@@ -151,7 +152,6 @@ class TurnBasedCardGame(BoxLayout):
             self.check_game_over()
 
     def end_turn(self, instance):
-        """ฟังก์ชันสำหรับสิ้นสุดเทิร์น"""
         if not self.card_used:
             self.show_notification("Please use a card before ending your turn.")
             return
@@ -160,18 +160,15 @@ class TurnBasedCardGame(BoxLayout):
         self.generate_cards()
 
     def check_game_over(self):
-        """ตรวจสอบเงื่อนไขจบเกม"""
         if self.player_hp == 0:
             self.show_game_over("LOSE!")
         elif self.enemy_hp == 0:
             self.show_game_over("WIN!")
 
     def update_score(self):
-        """อัปเดตคะแนนใน UI"""
         self.score_label.text = f"Score: {self.score}"
 
     def show_game_over(self, result):
-        """แสดงข้อความจบเกม"""
         popup = Popup(
             title="GAME OVER",
             content=Label(text=f"{result}\nFinal Score: {self.score}", font_size=24),
@@ -182,10 +179,14 @@ class TurnBasedCardGame(BoxLayout):
 
 class CardGameApp(App):
     def build(self):
-        sm = ScreenManager()
-        sm.add_widget(WelcomeScreen(name="welcome"))
-        sm.add_widget(TurnBasedCardGameScreen(name="game"))
-        return sm
+        self.root_widget = BoxLayout()
+        self.start_screen = StartScreen(self.start_game)
+        self.root_widget.add_widget(self.start_screen)
+        return self.root_widget
+
+    def start_game(self, instance):
+        self.root_widget.clear_widgets()
+        self.root_widget.add_widget(TurnBasedCardGame())
 
 
 if __name__ == "__main__":
