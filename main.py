@@ -52,10 +52,13 @@ class TurnBasedCardGame(BoxLayout):
         self.enemy_hp = 100
         self.player_defense = 0
         self.enemy_attack_debuff = 0
+        self.player_attack_buff = 0  # เพิ่มบัฟโจมตีของผู้เล่น
+        self.enemy_attack_buff = 0  # เพิ่มบัฟโจมตีของศัตรู
         self.score = 0
         self.card_used = False
         self.special_used = False  # ใช้ Special Attack หรือยัง
         self.reset_game_callback = reset_game_callback
+        self.is_paused = False  # สถานะของ Pause Game
 
         # Enemy HP
         self.add_widget(Label(text="ENEMY HP", font_size=20))
@@ -92,6 +95,16 @@ class TurnBasedCardGame(BoxLayout):
         self.end_turn_button.bind(on_press=self.end_turn)
         self.add_widget(self.end_turn_button)
 
+        # ปุ่ม Pause Game
+        self.pause_button = Button(
+            text="PAUSE GAME",
+            size_hint=(1, 0.2),
+            font_size=18,
+            background_color=[0.8, 0.8, 0, 1],
+        )
+        self.pause_button.bind(on_press=self.toggle_pause)
+        self.add_widget(self.pause_button)
+
         # ปุ่ม Reset Game
         self.reset_button = Button(
             text="RESET GAME",
@@ -102,13 +115,34 @@ class TurnBasedCardGame(BoxLayout):
         self.reset_button.bind(on_press=self.reset_game)
         self.add_widget(self.reset_button)
 
+        # ปุ่ม Skip Turn
+        self.skip_button = Button(
+            text="SKIP TURN",
+            size_hint=(1, 0.2),
+            font_size=18,
+            background_color=[0.2, 0.6, 0.8, 1],
+        )
+        self.skip_button.bind(on_press=self.skip_turn)
+        self.add_widget(self.skip_button)
+
         self.generate_cards()
 
+    def toggle_pause(self, instance):
+        self.is_paused = not self.is_paused
+        if self.is_paused:
+            self.show_notification("Game Paused")
+        else:
+            self.show_notification("Game Resumed")
+
     def generate_cards(self):
+        if self.is_paused:
+            return
         self.card_used = False
         self.cards_area.clear_widgets()
         for _ in range(3):
-            card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF"])
+            card_type = random.choice(
+                ["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"]
+            )  # เพิ่มการ์ด BUFF
             card_value = random.randint(5, 20)
             card_text = f"{card_type} {card_value} HP"
 
@@ -120,21 +154,15 @@ class TurnBasedCardGame(BoxLayout):
             )
             self.cards_area.add_widget(card_button)
 
-    def show_notification(self, message):
-        popup = Popup(
-            title="Notification",
-            content=Label(text=message, font_size=20),
-            size_hint=(0.6, 0.4),
-        )
-        popup.open()
-
     def use_card(self, card_type, card_value):
-        if self.card_used:
-            self.show_notification("You have already used a card this turn!")
+        if self.card_used or self.is_paused:
+            self.show_notification("You cannot use a card right now!")
             return
 
         if card_type == "ATTACK":
-            self.enemy_hp = max(0, self.enemy_hp - card_value)
+            self.enemy_hp = max(
+                0, self.enemy_hp - (card_value + self.player_attack_buff)
+            )
             self.enemy_hp_bar.value = self.enemy_hp
             self.score += 10
         elif card_type == "HEAL":
@@ -147,6 +175,9 @@ class TurnBasedCardGame(BoxLayout):
         elif card_type == "DEBUFF":
             self.enemy_attack_debuff = card_value
             self.score -= 2
+        elif card_type == "BUFF":
+            self.player_attack_buff = card_value  # เพิ่มบัฟโจมตีให้ผู้เล่น
+            self.score += 3
 
         self.update_score()
         self.card_used = True
@@ -164,20 +195,33 @@ class TurnBasedCardGame(BoxLayout):
         self.update_score()
         self.check_game_over()  # ตรวจสอบว่าชนะเกมหรือไม่
 
+    def skip_turn(self, instance):
+        if self.is_paused:
+            return
+        self.show_notification("You skipped your turn!")
+        self.card_used = True
+        self.end_turn(None)
+
     def enemy_turn(self):
         if self.enemy_hp > 0:
-            card_type = random.choice(["ATTACK", "HEAL"])
+            card_type = random.choice(["ATTACK", "HEAL", "BUFF"])  # เพิ่มบัฟศัตรู
             card_value = random.randint(5, 20)
 
             if card_type == "ATTACK":
                 damage = max(
-                    0, card_value - self.player_defense - self.enemy_attack_debuff
+                    0,
+                    card_value
+                    + self.enemy_attack_buff
+                    - self.player_defense
+                    - self.enemy_attack_debuff,
                 )
                 self.player_hp = max(0, self.player_hp - damage)
                 self.player_hp_bar.value = self.player_hp
             elif card_type == "HEAL":
                 self.enemy_hp = min(100, self.enemy_hp + card_value)
                 self.enemy_hp_bar.value = self.enemy_hp
+            elif card_type == "BUFF":
+                self.enemy_attack_buff = card_value  # เพิ่มบัฟโจมตีของศัตรู
 
             self.player_defense = 0
             self.enemy_attack_debuff = 0
@@ -204,6 +248,14 @@ class TurnBasedCardGame(BoxLayout):
 
     def update_score(self):
         self.score_label.text = f"Score: {self.score}"
+
+    def show_notification(self, message):
+        popup = Popup(
+            title="Notification",
+            content=Label(text=message, font_size=20),
+            size_hint=(0.6, 0.4),
+        )
+        popup.open()
 
     def show_game_over(self, result):
         popup = Popup(
