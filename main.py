@@ -45,7 +45,7 @@ class StartScreen(BoxLayout):
 
 
 class TurnBasedCardGame(BoxLayout):
-    def __init__(self, **kwargs):
+    def __init__(self, reset_game_callback, **kwargs):
         super().__init__(orientation="vertical", **kwargs)
 
         self.player_hp = 100
@@ -55,6 +55,7 @@ class TurnBasedCardGame(BoxLayout):
         self.score = 0
         self.card_used = False
         self.special_used = False  # ใช้ Special Attack หรือยัง
+        self.reset_game_callback = reset_game_callback
 
         # Enemy HP
         self.add_widget(Label(text="ENEMY HP", font_size=20))
@@ -90,6 +91,16 @@ class TurnBasedCardGame(BoxLayout):
         )
         self.end_turn_button.bind(on_press=self.end_turn)
         self.add_widget(self.end_turn_button)
+
+        # ปุ่ม Reset Game
+        self.reset_button = Button(
+            text="RESET GAME",
+            size_hint=(1, 0.2),
+            font_size=18,
+            background_color=[0.5, 0.5, 0.5, 1],
+        )
+        self.reset_button.bind(on_press=self.reset_game)
+        self.add_widget(self.reset_button)
 
         self.generate_cards()
 
@@ -182,13 +193,14 @@ class TurnBasedCardGame(BoxLayout):
         self.enemy_turn()
         self.generate_cards()
 
+    def reset_game(self, instance):
+        self.reset_game_callback()
+
     def check_game_over(self):
         if self.player_hp == 0:
             self.show_game_over("LOSE!")
         elif self.enemy_hp == 0:
             self.show_game_over("WIN!")
-            if self.special_used:
-                self.show_notification("Victory with Special Attack!")
 
     def update_score(self):
         self.score_label.text = f"Score: {self.score}"
@@ -209,9 +221,12 @@ class CardGameApp(App):
         self.root_widget.add_widget(self.start_screen)
         return self.root_widget
 
-    def start_game(self, instance):
+    def start_game(self, instance=None):
         self.root_widget.clear_widgets()
-        self.root_widget.add_widget(TurnBasedCardGame())
+        self.root_widget.add_widget(TurnBasedCardGame(self.reset_game))
+
+    def reset_game(self):
+        self.start_game()
 
 
 if __name__ == "__main__":
