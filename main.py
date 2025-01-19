@@ -54,6 +54,7 @@ class TurnBasedCardGame(BoxLayout):
         self.enemy_attack_debuff = 0
         self.score = 0
         self.card_used = False
+        self.special_used = False  # ใช้ Special Attack หรือยัง
 
         # Enemy HP
         self.add_widget(Label(text="ENEMY HP", font_size=20))
@@ -72,6 +73,16 @@ class TurnBasedCardGame(BoxLayout):
         # Cards
         self.cards_area = BoxLayout(size_hint=(1, 0.6))
         self.add_widget(self.cards_area)
+
+        # ปุ่ม Special Attack
+        self.special_button = Button(
+            text="Special Attack",
+            size_hint=(1, 0.2),
+            font_size=18,
+            background_color=[1, 0, 0, 1],
+        )
+        self.special_button.bind(on_press=self.special_attack)
+        self.add_widget(self.special_button)
 
         # End turn button
         self.end_turn_button = Button(
@@ -130,6 +141,18 @@ class TurnBasedCardGame(BoxLayout):
         self.card_used = True
         self.check_game_over()
 
+    def special_attack(self, instance):
+        if self.special_used:
+            self.show_notification("Special Attack already used!")
+            return
+
+        self.enemy_hp = max(0, self.enemy_hp - 50)  # ลด HP ศัตรู 50
+        self.enemy_hp_bar.value = self.enemy_hp
+        self.score += 20  # เพิ่มคะแนน
+        self.special_used = True  # เปลี่ยนสถานะให้ใช้ไปแล้ว
+        self.update_score()
+        self.check_game_over()  # ตรวจสอบว่าชนะเกมหรือไม่
+
     def enemy_turn(self):
         if self.enemy_hp > 0:
             card_type = random.choice(["ATTACK", "HEAL"])
@@ -164,6 +187,8 @@ class TurnBasedCardGame(BoxLayout):
             self.show_game_over("LOSE!")
         elif self.enemy_hp == 0:
             self.show_game_over("WIN!")
+            if self.special_used:
+                self.show_notification("Victory with Special Attack!")
 
     def update_score(self):
         self.score_label.text = f"Score: {self.score}"
