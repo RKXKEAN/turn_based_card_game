@@ -58,10 +58,10 @@ class TurnBasedCardGame(BoxLayout):
         self.is_paused = False
 
         # Top-right layout for Pause and Reset buttons
-        top_controls = BoxLayout(size_hint=(1, 0.1), padding=[0, 0, 10, 0])
+        top_controls = BoxLayout(size_hint=(1, 0.15), padding=[0, 0, 10, 0], spacing=10)
         self.pause_button = Button(
             text="PAUSE GAME",
-            font_size=18,
+            font_size=24,
             background_color=[0.8, 0.8, 0, 1],
             size_hint=(0.2, 1),
         )
@@ -70,7 +70,7 @@ class TurnBasedCardGame(BoxLayout):
 
         self.reset_button = Button(
             text="RESET GAME",
-            font_size=18,
+            font_size=24,
             background_color=[0.5, 0.5, 0.5, 1],
             size_hint=(0.2, 1),
         )
@@ -101,11 +101,11 @@ class TurnBasedCardGame(BoxLayout):
         # Layout for special attack and turn controls
         controls_layout = BoxLayout(orientation="vertical", size_hint=(1, 0.4))
 
-        # ปุ่ม Special Attack
+        # Special Attack Button
         self.special_button = Button(
             text="Special Attack",
-            size_hint=(1, 0.2),
-            font_size=18,
+            size_hint=(1, 0.3),
+            font_size=24,
             background_color=[1, 0, 0, 1],
         )
         self.special_button.bind(on_press=self.special_attack)
@@ -113,11 +113,11 @@ class TurnBasedCardGame(BoxLayout):
 
         # Layout for Skip Turn and End Turn
         bottom_controls = BoxLayout(
-            size_hint=(1, 0.2), spacing=10, padding=[10, 0, 10, 0]
+            size_hint=(1, 0.3), spacing=20, padding=[10, 0, 10, 0]
         )
         self.skip_button = Button(
             text="SKIP TURN",
-            font_size=18,
+            font_size=24,
             background_color=[0.2, 0.6, 0.8, 1],
         )
         self.skip_button.bind(on_press=self.skip_turn)
@@ -125,7 +125,7 @@ class TurnBasedCardGame(BoxLayout):
 
         self.end_turn_button = Button(
             text="END OF TURN",
-            font_size=18,
+            font_size=24,
             background_color=[0.1, 0.7, 0.3, 1],
         )
         self.end_turn_button.bind(on_press=self.end_turn)
@@ -153,7 +153,7 @@ class TurnBasedCardGame(BoxLayout):
             card_value = random.randint(5, 20)
             card_text = f"{card_type} {card_value} HP"
 
-            card_button = Button(text=card_text)
+            card_button = Button(text=card_text, font_size=20)
             card_button.bind(
                 on_press=lambda instance, ct=card_type, cv=card_value: self.use_card(
                     ct, cv
