@@ -13,14 +13,12 @@ class StartScreen(BoxLayout):
         self.spacing = 20
         self.padding = [50, 50, 50, 50]  # [left, top, right, bottom]
 
-        # เพิ่ม BoxLayout กลางหน้าจอ
         center_layout = BoxLayout(
             orientation="vertical",
             size_hint=(0.5, 0.5),
             pos_hint={"center_x": 0.5, "center_y": 0.5},
         )
 
-        # ชื่อเกม
         title_label = Label(
             text="Battle Deck Chronicles",
             font_size=40,
@@ -30,7 +28,6 @@ class StartScreen(BoxLayout):
         )
         center_layout.add_widget(title_label)
 
-        # ปุ่ม Play
         play_button = Button(
             text="Play",
             size_hint=(1, 0.1),
@@ -52,13 +49,36 @@ class TurnBasedCardGame(BoxLayout):
         self.enemy_hp = 100
         self.player_defense = 0
         self.enemy_attack_debuff = 0
-        self.player_attack_buff = 0  # เพิ่มบัฟโจมตีของผู้เล่น
-        self.enemy_attack_buff = 0  # เพิ่มบัฟโจมตีของศัตรู
+        self.player_attack_buff = 0
+        self.enemy_attack_buff = 0
         self.score = 0
         self.card_used = False
-        self.special_used = False  # ใช้ Special Attack หรือยัง
+        self.special_used = False
         self.reset_game_callback = reset_game_callback
-        self.is_paused = False  # สถานะของ Pause Game
+        self.is_paused = False
+
+        # Top-right layout for Pause and Reset buttons
+        top_controls = BoxLayout(size_hint=(1, 0.1), padding=[0, 0, 10, 0])
+        self.pause_button = Button(
+            text="PAUSE GAME",
+            font_size=18,
+            background_color=[0.8, 0.8, 0, 1],
+            size_hint=(0.2, 1),
+        )
+        self.pause_button.bind(on_press=self.toggle_pause)
+        top_controls.add_widget(self.pause_button)
+
+        self.reset_button = Button(
+            text="RESET GAME",
+            font_size=18,
+            background_color=[0.5, 0.5, 0.5, 1],
+            size_hint=(0.2, 1),
+        )
+        self.reset_button.bind(on_press=self.reset_game)
+        top_controls.add_widget(self.reset_button)
+
+        # Add top controls to the main layout
+        self.add_widget(top_controls)
 
         # Enemy HP
         self.add_widget(Label(text="ENEMY HP", font_size=20))
@@ -78,6 +98,9 @@ class TurnBasedCardGame(BoxLayout):
         self.cards_area = BoxLayout(size_hint=(1, 0.6))
         self.add_widget(self.cards_area)
 
+        # Layout for special attack and turn controls
+        controls_layout = BoxLayout(orientation="vertical", size_hint=(1, 0.4))
+
         # ปุ่ม Special Attack
         self.special_button = Button(
             text="Special Attack",
@@ -86,44 +109,30 @@ class TurnBasedCardGame(BoxLayout):
             background_color=[1, 0, 0, 1],
         )
         self.special_button.bind(on_press=self.special_attack)
-        self.add_widget(self.special_button)
+        controls_layout.add_widget(self.special_button)
 
-        # End turn button
-        self.end_turn_button = Button(
-            text="END OF TURN", size_hint=(1, 0.2), font_size=18
+        # Layout for Skip Turn and End Turn
+        bottom_controls = BoxLayout(
+            size_hint=(1, 0.2), spacing=10, padding=[10, 0, 10, 0]
         )
-        self.end_turn_button.bind(on_press=self.end_turn)
-        self.add_widget(self.end_turn_button)
-
-        # ปุ่ม Pause Game
-        self.pause_button = Button(
-            text="PAUSE GAME",
-            size_hint=(1, 0.2),
-            font_size=18,
-            background_color=[0.8, 0.8, 0, 1],
-        )
-        self.pause_button.bind(on_press=self.toggle_pause)
-        self.add_widget(self.pause_button)
-
-        # ปุ่ม Reset Game
-        self.reset_button = Button(
-            text="RESET GAME",
-            size_hint=(1, 0.2),
-            font_size=18,
-            background_color=[0.5, 0.5, 0.5, 1],
-        )
-        self.reset_button.bind(on_press=self.reset_game)
-        self.add_widget(self.reset_button)
-
-        # ปุ่ม Skip Turn
         self.skip_button = Button(
             text="SKIP TURN",
-            size_hint=(1, 0.2),
             font_size=18,
             background_color=[0.2, 0.6, 0.8, 1],
         )
         self.skip_button.bind(on_press=self.skip_turn)
-        self.add_widget(self.skip_button)
+        bottom_controls.add_widget(self.skip_button)
+
+        self.end_turn_button = Button(
+            text="END OF TURN",
+            font_size=18,
+            background_color=[0.1, 0.7, 0.3, 1],
+        )
+        self.end_turn_button.bind(on_press=self.end_turn)
+        bottom_controls.add_widget(self.end_turn_button)
+
+        controls_layout.add_widget(bottom_controls)
+        self.add_widget(controls_layout)
 
         self.generate_cards()
 
@@ -140,9 +149,7 @@ class TurnBasedCardGame(BoxLayout):
         self.card_used = False
         self.cards_area.clear_widgets()
         for _ in range(3):
-            card_type = random.choice(
-                ["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"]
-            )  # เพิ่มการ์ด BUFF
+            card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"])
             card_value = random.randint(5, 20)
             card_text = f"{card_type} {card_value} HP"
 
@@ -176,7 +183,7 @@ class TurnBasedCardGame(BoxLayout):
             self.enemy_attack_debuff = card_value
             self.score -= 2
         elif card_type == "BUFF":
-            self.player_attack_buff = card_value  # เพิ่มบัฟโจมตีให้ผู้เล่น
+            self.player_attack_buff = card_value
             self.score += 3
 
         self.update_score()
@@ -188,12 +195,12 @@ class TurnBasedCardGame(BoxLayout):
             self.show_notification("Special Attack already used!")
             return
 
-        self.enemy_hp = max(0, self.enemy_hp - 50)  # ลด HP ศัตรู 50
+        self.enemy_hp = max(0, self.enemy_hp - 50)
         self.enemy_hp_bar.value = self.enemy_hp
-        self.score += 20  # เพิ่มคะแนน
-        self.special_used = True  # เปลี่ยนสถานะให้ใช้ไปแล้ว
+        self.score += 20
+        self.special_used = True
         self.update_score()
-        self.check_game_over()  # ตรวจสอบว่าชนะเกมหรือไม่
+        self.check_game_over()
 
     def skip_turn(self, instance):
         if self.is_paused:
@@ -204,7 +211,7 @@ class TurnBasedCardGame(BoxLayout):
 
     def enemy_turn(self):
         if self.enemy_hp > 0:
-            card_type = random.choice(["ATTACK", "HEAL", "BUFF"])  # เพิ่มบัฟศัตรู
+            card_type = random.choice(["ATTACK", "HEAL", "BUFF"])
             card_value = random.randint(5, 20)
 
             if card_type == "ATTACK":
@@ -221,7 +228,7 @@ class TurnBasedCardGame(BoxLayout):
                 self.enemy_hp = min(100, self.enemy_hp + card_value)
                 self.enemy_hp_bar.value = self.enemy_hp
             elif card_type == "BUFF":
-                self.enemy_attack_buff = card_value  # เพิ่มบัฟโจมตีของศัตรู
+                self.enemy_attack_buff = card_value
 
             self.player_defense = 0
             self.enemy_attack_debuff = 0
