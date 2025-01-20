@@ -4,7 +4,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.progressbar import ProgressBar
-from kivy.uix.popup import Popup
+from kivy.uix.scrollview import ScrollView
 
 
 class StartScreen(BoxLayout):
@@ -134,14 +134,27 @@ class TurnBasedCardGame(BoxLayout):
         controls_layout.add_widget(bottom_controls)
         self.add_widget(controls_layout)
 
+        # Log Area
+        self.log_area = ScrollView(size_hint=(1, 0.3))
+        self.log_label = Label(text="", font_size=18, size_hint_y=None, valign="top")
+        self.log_label.bind(size=self.update_log_height)
+        self.log_area.add_widget(self.log_label)
+        self.add_widget(self.log_area)
+
         self.generate_cards()
+
+    def update_log_height(self, *args):
+        self.log_label.height = self.log_label.texture_size[1]
+        self.log_label.text_size = (self.log_label.width, None)
+
+    def log_action(self, message):
+        self.log_label.text += message + "\n"
+        self.log_area.scroll_y = 0  # Always show the latest log
 
     def toggle_pause(self, instance):
         self.is_paused = not self.is_paused
-        if self.is_paused:
-            self.show_notification("Game Paused")
-        else:
-            self.show_notification("Game Resumed")
+        status = "Game Paused" if self.is_paused else "Game Resumed"
+        self.log_action(status)
 
     def generate_cards(self):
         if self.is_paused:
@@ -163,7 +176,7 @@ class TurnBasedCardGame(BoxLayout):
 
     def use_card(self, card_type, card_value):
         if self.card_used or self.is_paused:
-            self.show_notification("You cannot use a card right now!")
+            self.log_action("You cannot use a card right now!")
             return
 
         if card_type == "ATTACK":
@@ -172,19 +185,26 @@ class TurnBasedCardGame(BoxLayout):
             )
             self.enemy_hp_bar.value = self.enemy_hp
             self.score += 10
+            self.log_action(f"Player used ATTACK and dealt {card_value} damage!")
         elif card_type == "HEAL":
             self.player_hp = min(100, self.player_hp + card_value)
             self.player_hp_bar.value = self.player_hp
             self.score += 5
+            self.log_action(f"Player used HEAL and recovered {card_value} HP!")
         elif card_type == "DEFEND":
             self.player_defense = card_value
             self.score -= 2
+            self.log_action(f"Player used DEFEND to block {card_value} damage!")
         elif card_type == "DEBUFF":
             self.enemy_attack_debuff = card_value
             self.score -= 2
+            self.log_action(
+                f"Player used DEBUFF to reduce enemy attack by {card_value}!"
+            )
         elif card_type == "BUFF":
             self.player_attack_buff = card_value
             self.score += 3
+            self.log_action(f"Player used BUFF to increase attack by {card_value}!")
 
         self.update_score()
         self.card_used = True
@@ -192,20 +212,21 @@ class TurnBasedCardGame(BoxLayout):
 
     def special_attack(self, instance):
         if self.special_used:
-            self.show_notification("Special Attack already used!")
+            self.log_action("Special Attack already used!")
             return
 
         self.enemy_hp = max(0, self.enemy_hp - 50)
         self.enemy_hp_bar.value = self.enemy_hp
         self.score += 20
         self.special_used = True
+        self.log_action("Player used SPECIAL ATTACK and dealt 50 damage!")
         self.update_score()
         self.check_game_over()
 
     def skip_turn(self, instance):
         if self.is_paused:
             return
-        self.show_notification("You skipped your turn!")
+        self.log_action("Player skipped their turn!")
         self.card_used = True
         self.end_turn(None)
 
@@ -224,11 +245,14 @@ class TurnBasedCardGame(BoxLayout):
                 )
                 self.player_hp = max(0, self.player_hp - damage)
                 self.player_hp_bar.value = self.player_hp
+                self.log_action(f"Enemy used ATTACK and dealt {damage} damage!")
             elif card_type == "HEAL":
                 self.enemy_hp = min(100, self.enemy_hp + card_value)
                 self.enemy_hp_bar.value = self.enemy_hp
+                self.log_action(f"Enemy used HEAL and recovered {card_value} HP!")
             elif card_type == "BUFF":
                 self.enemy_attack_buff = card_value
+                self.log_action(f"Enemy used BUFF to increase attack by {card_value}!")
 
             self.player_defense = 0
             self.enemy_attack_debuff = 0
@@ -238,9 +262,10 @@ class TurnBasedCardGame(BoxLayout):
 
     def end_turn(self, instance):
         if not self.card_used:
-            self.show_notification("Please use a card before ending your turn.")
+            self.log_action("Please use a card before ending your turn.")
             return
 
+        self.log_action("Player ended their turn.")
         self.enemy_turn()
         self.generate_cards()
 
@@ -249,28 +274,12 @@ class TurnBasedCardGame(BoxLayout):
 
     def check_game_over(self):
         if self.player_hp == 0:
-            self.show_game_over("LOSE!")
+            self.log_action("Game Over: You Lose!")
         elif self.enemy_hp == 0:
-            self.show_game_over("WIN!")
+            self.log_action("Game Over: You Win!")
 
     def update_score(self):
         self.score_label.text = f"Score: {self.score}"
-
-    def show_notification(self, message):
-        popup = Popup(
-            title="Notification",
-            content=Label(text=message, font_size=20),
-            size_hint=(0.6, 0.4),
-        )
-        popup.open()
-
-    def show_game_over(self, result):
-        popup = Popup(
-            title="GAME OVER",
-            content=Label(text=f"{result}\nFinal Score: {self.score}", font_size=24),
-            size_hint=(0.6, 0.4),
-        )
-        popup.open()
 
 
 class CardGameApp(App):
