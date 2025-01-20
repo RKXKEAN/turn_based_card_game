@@ -45,6 +45,7 @@ class TurnBasedCardGame(BoxLayout):
     def __init__(self, reset_game_callback, **kwargs):
         super().__init__(orientation="vertical", **kwargs)
 
+        # Initialize attributes
         self.player_hp = 100
         self.enemy_hp = 100
         self.player_defense = 0
@@ -84,11 +85,15 @@ class TurnBasedCardGame(BoxLayout):
         self.add_widget(Label(text="ENEMY HP", font_size=20))
         self.enemy_hp_bar = ProgressBar(max=100, value=self.enemy_hp)
         self.add_widget(self.enemy_hp_bar)
+        self.enemy_hp_label = Label(text=f"{self.enemy_hp} HP", font_size=18)
+        self.add_widget(self.enemy_hp_label)  # Add enemy HP number
 
         # Player HP
         self.add_widget(Label(text="PLAYER HP", font_size=20))
         self.player_hp_bar = ProgressBar(max=100, value=self.player_hp)
         self.add_widget(self.player_hp_bar)
+        self.player_hp_label = Label(text=f"{self.player_hp} HP", font_size=18)
+        self.add_widget(self.player_hp_label)  # Add player HP number
 
         # Score
         self.score_label = Label(text=f"Score: {self.score}", font_size=20)
@@ -230,6 +235,7 @@ class TurnBasedCardGame(BoxLayout):
 
         self.update_score()
         self.card_used = True
+        self.update_hp_labels()  # Update HP labels after using a card
         self.check_game_over()
 
     def special_attack(self, instance):
@@ -243,6 +249,7 @@ class TurnBasedCardGame(BoxLayout):
         self.special_used = True
         self.log_action("Player used SPECIAL ATTACK and dealt 50 damage!")
         self.update_score()
+        self.update_hp_labels()  # Update HP labels after special attack
         self.check_game_over()
 
     def skip_turn(self, instance):
@@ -280,6 +287,7 @@ class TurnBasedCardGame(BoxLayout):
             self.enemy_attack_debuff = 0
 
             self.update_score()
+            self.update_hp_labels()  # Update HP labels after enemy's turn
             self.check_game_over()
 
     def end_turn(self, instance):
@@ -302,6 +310,11 @@ class TurnBasedCardGame(BoxLayout):
 
     def update_score(self):
         self.score_label.text = f"Score: {self.score}"
+
+    def update_hp_labels(self):
+        """Update HP numbers on the screen."""
+        self.enemy_hp_label.text = f"{self.enemy_hp} HP"
+        self.player_hp_label.text = f"{self.player_hp} HP"
 
 
 class CardGameApp(App):
