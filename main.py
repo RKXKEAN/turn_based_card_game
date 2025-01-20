@@ -166,7 +166,29 @@ class TurnBasedCardGame(BoxLayout):
             card_value = random.randint(5, 20)
             card_text = f"{card_type} {card_value} HP"
 
-            card_button = Button(text=card_text, font_size=20)
+            # ตั้งค่าสีตามประเภทของการ์ด
+            if card_type == "ATTACK":
+                bg_color = [1, 0.2, 0.2, 1]  # สีแดง
+                text_color = [1, 1, 1, 1]  # สีขาว
+            elif card_type == "HEAL":
+                bg_color = [0.2, 1, 0.2, 1]  # สีเขียว
+                text_color = [0, 0, 0, 1]  # สีดำ
+            elif card_type == "DEFEND":
+                bg_color = [0.2, 0.2, 1, 1]  # สีน้ำเงิน
+                text_color = [1, 1, 1, 1]  # สีขาว
+            elif card_type == "DEBUFF":
+                bg_color = [1, 0.8, 0.2, 1]  # สีเหลือง
+                text_color = [0, 0, 0, 1]  # สีดำ
+            elif card_type == "BUFF":
+                bg_color = [0.8, 0.2, 1, 1]  # สีม่วง
+                text_color = [1, 1, 1, 1]  # สีขาว
+
+            card_button = Button(
+                text=card_text,
+                font_size=20,
+                background_color=bg_color,
+                color=text_color,
+            )
             card_button.bind(
                 on_press=lambda instance, ct=card_type, cv=card_value: self.use_card(
                     ct, cv
