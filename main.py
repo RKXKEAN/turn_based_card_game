@@ -5,6 +5,8 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.progressbar import ProgressBar
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.image import Image
+from kivy.graphics import Rectangle
 
 
 class StartScreen(BoxLayout):
@@ -20,7 +22,7 @@ class StartScreen(BoxLayout):
         )
 
         title_label = Label(
-            text="Battle Deck Chronicles",
+            text="Shadow War",
             font_size=40,
             bold=True,
             color=[1, 1, 1, 1],
