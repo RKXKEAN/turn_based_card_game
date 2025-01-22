@@ -120,7 +120,7 @@ class TurnBasedCardGame(BoxLayout):
 
         # Layout for Skip Turn and End Turn
         bottom_controls = BoxLayout(
-            size_hint=(1, 0.3), spacing=20, padding=[10, 0, 10, 0]
+            size_hint=(1, 0.3), spacing=20, padding=[0, 0, 0, -10]
         )
         self.skip_button = Button(
             text="SKIP TURN",
@@ -142,7 +142,7 @@ class TurnBasedCardGame(BoxLayout):
         self.add_widget(controls_layout)
 
         # Log Area
-        self.log_area = ScrollView(size_hint=(1, 0.8))
+        self.log_area = ScrollView(size_hint=(1, 1))
         self.log_label = Label(text="", font_size=18, size_hint_y=None, valign="top")
         self.log_label.bind(size=self.update_log_height)
         self.log_area.add_widget(self.log_label)
