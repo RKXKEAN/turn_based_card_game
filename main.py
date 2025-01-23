@@ -7,14 +7,24 @@ from kivy.uix.progressbar import ProgressBar
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
 from kivy.graphics import Rectangle
+from kivy.uix.floatlayout import FloatLayout
 
 
-class StartScreen(BoxLayout):
+class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เป็น FloatLayout
     def __init__(self, start_game_callback, **kwargs):
-        super().__init__(orientation="vertical", **kwargs)
-        self.spacing = 20
-        self.padding = [50, 50, 50, 50]  # [left, top, right, bottom]
+        super().__init__(**kwargs)
 
+        # พื้นหลัง
+        background = Image(
+            source="backg.png",
+            allow_stretch=True,
+            keep_ratio=False,
+            size_hint=(0.9, 0.9),
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+        )
+        self.add_widget(background)
+
+        # ส่วนกลาง
         center_layout = BoxLayout(
             orientation="vertical",
             size_hint=(0.5, 0.5),
@@ -32,7 +42,7 @@ class StartScreen(BoxLayout):
 
         play_button = Button(
             text="Play",
-            size_hint=(1, 0.1),
+            size_hint=(1, 0.3),
             font_size=30,
             background_color=[0, 0.5, 1, 1],
             color=[1, 1, 1, 1],
