@@ -16,7 +16,7 @@ class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เ�
 
         # พื้นหลัง
         background = Image(
-            source="backg.png",
+            source="809633.jpg",
             allow_stretch=True,
             keep_ratio=False,
             size_hint=(0.9, 0.9),
@@ -32,20 +32,22 @@ class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เ�
         )
 
         title_label = Label(
-            text="Shadow War",
+            text="",
             font_size=40,
             bold=True,
             color=[1, 1, 1, 1],
-            size_hint=(1, 0.5),
+            size_hint=(1, 2),
         )
         center_layout.add_widget(title_label)
 
         play_button = Button(
-            text="Play",
+            text="[b][i]Play[/i][/b]",
+            markup=True,
             size_hint=(1, 0.3),
-            font_size=30,
-            background_color=[0, 0.5, 1, 1],
-            color=[1, 1, 1, 1],
+            font_size=50,
+            pos_hint={"center_x": 0.5, "center_y": 0},
+            background_color=[0, 0, 0, 0],
+            color=[1, 0.8, 0.3, 0.8],
         )
         play_button.bind(on_press=start_game_callback)
         center_layout.add_widget(play_button)
