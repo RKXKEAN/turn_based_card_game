@@ -114,7 +114,7 @@ class TurnBasedCardGame(BoxLayout):
         self.add_widget(self.score_label)
 
         # Cards
-        self.cards_area = BoxLayout(size_hint=(1, 0.6))
+        self.cards_area = BoxLayout(size_hint=(1, 0.5), padding=[10, 10, 10, 10])
         self.add_widget(self.cards_area)
 
         # Layout for special attack and turn controls
@@ -123,7 +123,8 @@ class TurnBasedCardGame(BoxLayout):
         # Special Attack Button
         self.special_button = Button(
             text="Special Attack",
-            size_hint=(1, 0.3),
+            size_hint=(1, 2),
+            padding=[0, 10, 0, 10],
             font_size=24,
             background_color=[1, 0, 0, 1],
         )
@@ -132,13 +133,13 @@ class TurnBasedCardGame(BoxLayout):
 
         # Layout for Skip Turn and End Turn
         bottom_controls = BoxLayout(
-            size_hint=(1, 0.5),
+            size_hint=(1, 2),
             spacing=20,
-            padding=[0, 0, 0, -5],
+            padding=[10, 10, 10, -10],
         )
         self.skip_button = Button(
             text="SKIP TURN",
-            font_size=24,
+            font_size=20,
             background_color=[0.2, 0.6, 0.8, 1],
         )
         self.skip_button.bind(on_press=self.skip_turn)
@@ -146,7 +147,7 @@ class TurnBasedCardGame(BoxLayout):
 
         self.end_turn_button = Button(
             text="END OF TURN",
-            font_size=24,
+            font_size=20,
             background_color=[0.1, 0.7, 0.3, 1],
         )
         self.end_turn_button.bind(on_press=self.end_turn)
@@ -156,7 +157,9 @@ class TurnBasedCardGame(BoxLayout):
         self.add_widget(controls_layout)
 
         # Log Area
-        self.log_area = ScrollView(size_hint=(1, 1))
+        self.log_area = ScrollView(
+            size_hint=(1, 0.5),
+        )
         self.log_label = Label(text="", font_size=18, size_hint_y=None, valign="top")
         self.log_label.bind(size=self.update_log_height)
         self.log_area.add_widget(self.log_label)
