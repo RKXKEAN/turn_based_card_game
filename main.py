@@ -61,7 +61,9 @@ class TurnBasedCardGame(BoxLayout):
         self.is_paused = False
 
         # Top-right layout for Pause and Reset buttons
-        top_controls = BoxLayout(size_hint=(1, 0.15), padding=[0, 0, 10, 0], spacing=10)
+        top_controls = BoxLayout(
+            size_hint=(1, 0.4), padding=[10, 10, 10, -10], spacing=10
+        )
         self.pause_button = Button(
             text="PAUSE GAME",
             font_size=24,
@@ -85,20 +87,30 @@ class TurnBasedCardGame(BoxLayout):
 
         # Enemy HP
         self.add_widget(Label(text="ENEMY HP", font_size=20))
-        self.enemy_hp_bar = ProgressBar(max=100, value=self.enemy_hp)
+        self.enemy_hp_bar = ProgressBar(
+            max=100, value=self.enemy_hp, size_hint=(1, 0.2)
+        )
         self.add_widget(self.enemy_hp_bar)
-        self.enemy_hp_label = Label(text=f"{self.enemy_hp} HP", font_size=18)
+        self.enemy_hp_label = Label(
+            text=f"{self.enemy_hp} HP", font_size=18, size_hint=(1, 0.1)
+        )
         self.add_widget(self.enemy_hp_label)  # Add enemy HP number
 
         # Player HP
         self.add_widget(Label(text="PLAYER HP", font_size=20))
-        self.player_hp_bar = ProgressBar(max=100, value=self.player_hp)
+        self.player_hp_bar = ProgressBar(
+            max=100, value=self.player_hp, size_hint=(1, 0.2)
+        )
         self.add_widget(self.player_hp_bar)
-        self.player_hp_label = Label(text=f"{self.player_hp} HP", font_size=18)
+        self.player_hp_label = Label(
+            text=f"{self.player_hp} HP", font_size=18, size_hint=(1, 0.1)
+        )
         self.add_widget(self.player_hp_label)  # Add player HP number
 
         # Score
-        self.score_label = Label(text=f"Score: {self.score}", font_size=20)
+        self.score_label = Label(
+            text=f"Score: {self.score}", font_size=20, size_hint=(1, 0.1)
+        )
         self.add_widget(self.score_label)
 
         # Cards
@@ -120,7 +132,9 @@ class TurnBasedCardGame(BoxLayout):
 
         # Layout for Skip Turn and End Turn
         bottom_controls = BoxLayout(
-            size_hint=(1, 0.3), spacing=20, padding=[0, 0, 0, -10]
+            size_hint=(1, 0.5),
+            spacing=20,
+            padding=[0, 0, 0, -5],
         )
         self.skip_button = Button(
             text="SKIP TURN",
