@@ -32,15 +32,25 @@ class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เ�
             pos_hint={"center_x": 0.5, "center_y": 0.5},
         )
 
-        title_label = Label(
+        space_label = Label(
             text="",
             font_size=40,
             bold=True,
             color=[1, 1, 1, 1],
-            size_hint=(1, 2),
+            size_hint=(1, 10),
         )
 
-        center_layout.add_widget(title_label)
+        center_layout.add_widget(space_label)
+
+        space2_label = Label(
+            text="",
+            font_size=40,
+            bold=True,
+            color=[1, 1, 1, 1],
+            size_hint=(1, 10),
+        )
+
+        center_layout.add_widget(space2_label)
         title_label = Label(
             text="",
             font_size=100,
@@ -227,7 +237,7 @@ class TurnBasedCardGame(BoxLayout):
         self.cards_area.clear_widgets()
         for _ in range(3):
             card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"])
-            card_value = random.randint(5, 20)
+            card_value = random.randint(20, 30)
             card_text = f"{card_type} {card_value} "
 
             # ตั้งค่าสีตามประเภทของการ์ด
@@ -305,11 +315,11 @@ class TurnBasedCardGame(BoxLayout):
             self.log_action("Special Attack already used!")
             return
 
-        self.enemy_hp = max(0, self.enemy_hp - 50)
+        self.enemy_hp = max(0, self.enemy_hp - 40)
         self.enemy_hp_bar.value = self.enemy_hp
-        self.score += 20
+        self.score += 10
         self.special_used = True
-        self.log_action("Player used SPECIAL ATTACK and dealt 50 damage!")
+        self.log_action("Player used SPECIAL ATTACK and dealt 40 damage!")
         self.update_score()
         self.update_hp_labels()  # Update HP labels after special attack
         self.check_game_over()
@@ -323,7 +333,7 @@ class TurnBasedCardGame(BoxLayout):
 
     def enemy_turn(self):
         if self.enemy_hp > 0:
-            card_type = random.choice(["ATTACK", "HEAL", "BUFF"])
+            card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"])
             card_value = random.randint(5, 20)
 
             if card_type == "ATTACK":
@@ -341,10 +351,19 @@ class TurnBasedCardGame(BoxLayout):
                 self.enemy_hp = min(100, self.enemy_hp + card_value)
                 self.enemy_hp_bar.value = self.enemy_hp
                 self.log_action(f"Enemy used HEAL and recovered {card_value} HP!")
+            elif card_type == "DEFEND":
+                self.enemy_defense = card_value
+                self.log_action(f"Enemy used DEFEND to block {card_value} damage!")
+            elif card_type == "DEBUFF":
+                self.player_attack_debuff = card_value
+                self.log_action(
+                    f"Enemy used DEBUFF to reduce player's attack by {card_value}!"
+                )
             elif card_type == "BUFF":
                 self.enemy_attack_buff = card_value
                 self.log_action(f"Enemy used BUFF to increase attack by {card_value}!")
 
+            # Reset player buffs and debuffs at the end of enemy turn
             self.player_defense = 0
             self.enemy_attack_debuff = 0
 
@@ -416,7 +435,6 @@ class CardGameApp(App):
             TurnBasedCardGame(self.reset_game, self.go_to_main_menu)
         )
 
-    # ฟังก์ชัน go_to_main_menu
     def go_to_main_menu(self):
         self.root_widget.clear_widgets()
         self.root_widget.add_widget(self.start_screen)
