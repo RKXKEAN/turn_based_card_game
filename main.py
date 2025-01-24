@@ -38,14 +38,23 @@ class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เ�
             color=[1, 1, 1, 1],
             size_hint=(1, 2),
         )
+
+        center_layout.add_widget(title_label)
+        title_label = Label(
+            text="",
+            font_size=100,
+            bold=True,
+            color=[1, 1, 1, 1],
+            size_hint=(1, 10),
+        )
         center_layout.add_widget(title_label)
 
         play_button = Button(
             text="[b][i]Play[/i][/b]",
             markup=True,
             size_hint=(1, 0.3),
-            font_size=50,
-            pos_hint={"center_x": 0.5, "center_y": 0},
+            font_size=70,
+            pos_hint={"center_x": 0.5, "center_y": -1},
             background_color=[0, 0, 0, 0],
             color=[1, 0.8, 0.3, 0.8],
         )
