@@ -123,7 +123,7 @@ class TurnBasedCardGame(BoxLayout):
         # Enemy HP
         self.add_widget(Label(text="ENEMY HP", font_size=20))
         self.enemy_hp_bar = ProgressBar(
-            max=100, value=self.enemy_hp, size_hint=(1, 0.2)
+            max=100, value=self.enemy_hp, size_hint=(1, 0.1)
         )
         self.add_widget(self.enemy_hp_bar)
         self.enemy_hp_label = Label(
@@ -134,7 +134,7 @@ class TurnBasedCardGame(BoxLayout):
         # Player HP
         self.add_widget(Label(text="PLAYER HP", font_size=20))
         self.player_hp_bar = ProgressBar(
-            max=100, value=self.player_hp, size_hint=(1, 0.2)
+            max=100, value=self.player_hp, size_hint=(1, 0.1)
         )
         self.add_widget(self.player_hp_bar)
         self.player_hp_label = Label(
@@ -149,7 +149,12 @@ class TurnBasedCardGame(BoxLayout):
         self.add_widget(self.score_label)
 
         # Cards
-        self.cards_area = BoxLayout(size_hint=(1, 0.5), padding=[10, 10, 10, 10])
+        self.cards_area = BoxLayout(
+            size_hint=(0.5, 2),
+            padding=[10, 10, 10, 10],
+            spacing=20,
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+        )
         self.add_widget(self.cards_area)
 
         # Layout for special attack and turn controls
@@ -223,30 +228,33 @@ class TurnBasedCardGame(BoxLayout):
         for _ in range(3):
             card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"])
             card_value = random.randint(5, 20)
-            card_text = f"{card_type} {card_value} HP"
+            card_text = f"{card_type} {card_value} "
 
             # ตั้งค่าสีตามประเภทของการ์ด
             if card_type == "ATTACK":
-                bg_color = [1, 0.2, 0.2, 1]  # สีแดง
-                text_color = [1, 1, 1, 1]  # สีขาว
+                bg_color = "sword.png"  # สีแดง
+                text_color = [1, 0, 0, 1]  # สีขาว
             elif card_type == "HEAL":
-                bg_color = [0.2, 1, 0.2, 1]  # สีเขียว
+                bg_color = "heal.png"  # สีเขียว
                 text_color = [0, 0, 0, 1]  # สีดำ
             elif card_type == "DEFEND":
-                bg_color = [0.2, 0.2, 1, 1]  # สีน้ำเงิน
-                text_color = [1, 1, 1, 1]  # สีขาว
+                bg_color = "sheird.png"  # สีน้ำเงิน
+                text_color = [0, 0, 0, 1]  # สีขาว
             elif card_type == "DEBUFF":
-                bg_color = [1, 0.8, 0.2, 1]  # สีเหลือง
-                text_color = [0, 0, 0, 1]  # สีดำ
+                bg_color = "debuff.png"  # สีเหลือง
+                text_color = [1, 1, 1, 1]  # สีดำ
             elif card_type == "BUFF":
-                bg_color = [0.8, 0.2, 1, 1]  # สีม่วง
-                text_color = [1, 1, 1, 1]  # สีขาว
+                bg_color = "buff.png"  # สีม่วง
+                text_color = [0, 0, 0, 1]  # สีขาว
 
             card_button = Button(
                 text=card_text,
-                font_size=20,
-                background_color=bg_color,
+                font_size=25,
+                background_normal=bg_color,
+                background_down=bg_color,
                 color=text_color,
+                border=[0, 0, 0, 1],
+                bold=True,
             )
             card_button.bind(
                 on_press=lambda instance, ct=card_type, cv=card_value: self.use_card(
