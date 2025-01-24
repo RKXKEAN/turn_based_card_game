@@ -65,8 +65,12 @@ class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เ�
 
 
 class TurnBasedCardGame(BoxLayout):
-    def __init__(self, reset_game_callback, **kwargs):
+    def __init__(self, reset_game_callback, go_to_main_menu_callback, **kwargs):
         super().__init__(orientation="vertical", **kwargs)
+        self.reset_game_callback = reset_game_callback
+        self.go_to_main_menu_callback = (
+            go_to_main_menu_callback  # เก็บ callback สำหรับ Main Menu
+        )
 
         # Initialize attributes
         self.player_hp = 100
@@ -102,6 +106,15 @@ class TurnBasedCardGame(BoxLayout):
         )
         self.reset_button.bind(on_press=self.reset_game)
         top_controls.add_widget(self.reset_button)
+
+        self.main_menu_button = Button(
+            text="MAIN MENU",
+            font_size=24,
+            background_color=[0.2, 0.4, 1, 1],
+            size_hint=(0.2, 1),
+        )
+        self.main_menu_button.bind(on_press=self.go_to_main_menu)
+        top_controls.add_widget(self.main_menu_button)
 
         # Add top controls to the main layout
         self.add_widget(top_controls)
@@ -342,6 +355,9 @@ class TurnBasedCardGame(BoxLayout):
     def reset_game(self, instance):
         self.reset_game_callback()
 
+    def go_to_main_menu(self, instance):
+        self.go_to_main_menu_callback()
+
     def check_game_over(self):
         if self.player_hp == 0:
             self.log_action("Game Over: You Lose!")
@@ -366,7 +382,14 @@ class CardGameApp(App):
 
     def start_game(self, instance=None):
         self.root_widget.clear_widgets()
-        self.root_widget.add_widget(TurnBasedCardGame(self.reset_game))
+        self.root_widget.add_widget(
+            TurnBasedCardGame(self.reset_game, self.go_to_main_menu)
+        )
+
+    # ฟังก์ชัน go_to_main_menu
+    def go_to_main_menu(self):
+        self.root_widget.clear_widgets()
+        self.root_widget.add_widget(self.start_screen)
 
     def reset_game(self):
         self.start_game()
