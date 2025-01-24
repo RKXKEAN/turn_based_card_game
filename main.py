@@ -11,6 +11,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivy.animation import Animation
 from kivy.clock import Clock
+from kivy.core.audio import SoundLoader
 
 
 class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เป็น FloatLayout
@@ -445,6 +446,11 @@ class TurnBasedCardGame(BoxLayout):
 
 class CardGameApp(App):
     def build(self):
+        self.background_music = SoundLoader.load("viking.mp3")
+        if self.background_music:
+            self.background_music.loop = True  # ทำให้เล่นซ้ำอัตโนมัติ
+            self.background_music.volume = 1  # ตั้งระดับเสียง (ค่าระหว่าง 0 ถึง 1)
+            self.background_music.play()  # เริ่มเล่นเพลง
         self.root_widget = BoxLayout()
         self.start_screen = StartScreen(self.start_game)
         self.root_widget.add_widget(self.start_screen)
@@ -462,6 +468,11 @@ class CardGameApp(App):
 
     def reset_game(self):
         self.start_game()
+
+    def on_stop(self):
+        # หยุดเพลงเมื่อแอปปิด
+        if self.background_music:
+            self.background_music.stop()
 
 
 if __name__ == "__main__":
