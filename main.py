@@ -255,7 +255,7 @@ class TurnBasedCardGame(BoxLayout):
         self.cards_area.clear_widgets()
         for _ in range(3):
             card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"])
-            card_value = random.randint(1, 10)
+            card_value = random.randint(10, 20)
             card_text = f"{card_type} {card_value} "
 
             if card_type == "ATTACK":
@@ -371,7 +371,7 @@ class TurnBasedCardGame(BoxLayout):
     def enemy_turn(self):
         if self.enemy_hp > 0:
             card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"])
-            card_value = random.randint(1, 10)
+            card_value = random.randint(10, 20)
 
             if card_type == "ATTACK":
                 damage = max(
