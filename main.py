@@ -9,6 +9,8 @@ from kivy.uix.image import Image
 from kivy.graphics import Rectangle
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
+from kivy.animation import Animation
+from kivy.clock import Clock
 
 
 class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เป็น FloatLayout
@@ -240,22 +242,21 @@ class TurnBasedCardGame(BoxLayout):
             card_value = random.randint(20, 30)
             card_text = f"{card_type} {card_value} "
 
-            # ตั้งค่าสีตามประเภทของการ์ด
             if card_type == "ATTACK":
-                bg_color = "sword.png"  # สีแดง
-                text_color = [1, 0, 0, 1]  # สีขาว
+                bg_color = "sword.png"
+                text_color = [1, 0, 0, 1]
             elif card_type == "HEAL":
-                bg_color = "heal.png"  # สีเขียว
-                text_color = [0, 0, 0, 1]  # สีดำ
+                bg_color = "heal.png"
+                text_color = [0, 0, 0, 1]
             elif card_type == "DEFEND":
-                bg_color = "sheird.png"  # สีน้ำเงิน
-                text_color = [0, 0, 0, 1]  # สีขาว
+                bg_color = "sheird.png"
+                text_color = [0, 0, 0, 1]
             elif card_type == "DEBUFF":
-                bg_color = "debuff.png"  # สีเหลือง
-                text_color = [1, 1, 1, 1]  # สีดำ
+                bg_color = "debuff.png"
+                text_color = [1, 1, 1, 1]
             elif card_type == "BUFF":
-                bg_color = "buff.png"  # สีม่วง
-                text_color = [0, 0, 0, 1]  # สีขาว
+                bg_color = "buff.png"
+                text_color = [0, 0, 0, 1]
 
             card_button = Button(
                 text=card_text,
@@ -277,7 +278,27 @@ class TurnBasedCardGame(BoxLayout):
         if self.card_used or self.is_paused:
             self.log_action("You cannot use a card right now!")
             return
+        if self.card_used:
+            return
+        self.card_used = True
 
+        def apply_effect(button):
+            # เปลี่ยนสีพื้นหลังชั่วคราว
+            button.background_color = [1, 0.5, 0.5, 1]  # สีชมพู
+            anim = Animation(
+                size=(button.size[0] + 20, button.size[1] + 20), duration=0.2
+            ) + Animation(size=button.size, duration=0.2)
+            anim.start(button)
+
+            # กลับมาสู่สีเดิม
+            Clock.schedule_once(
+                lambda dt: setattr(button, "background_color", [1, 1, 1, 1]), 0.5
+            )
+
+        # เพิ่มเอฟเฟกต์ให้กับการ์ดที่กด
+        for child in self.cards_area.children:
+            if f"{card_type} {card_value} " in child.text:
+                apply_effect(child)
         if card_type == "ATTACK":
             self.enemy_hp = max(
                 0, self.enemy_hp - (card_value + self.player_attack_buff)
