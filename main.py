@@ -8,6 +8,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
 from kivy.graphics import Rectangle
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.popup import Popup
 
 
 class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เป็น FloatLayout
@@ -360,9 +361,9 @@ class TurnBasedCardGame(BoxLayout):
 
     def check_game_over(self):
         if self.player_hp == 0:
-            self.log_action("Game Over: You Lose!")
+            self.show_popup("Game Over", "You Lose!")
         elif self.enemy_hp == 0:
-            self.log_action("Game Over: You Win!")
+            self.show_popup("Game Over", "You Win!")
 
     def update_score(self):
         self.score_label.text = f"Score: {self.score}"
@@ -371,6 +372,27 @@ class TurnBasedCardGame(BoxLayout):
         """Update HP numbers on the screen."""
         self.enemy_hp_label.text = f"{self.enemy_hp} HP"
         self.player_hp_label.text = f"{self.player_hp} HP"
+
+    def show_popup(self, title, message):
+
+        popup_content = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        popup_content.add_widget(Label(text=message, font_size=24))
+
+        close_button = Button(text="Close", size_hint=(1, 0.3), font_size=20)
+        close_button.bind(on_press=lambda instance: self.reset_game_callback())
+        popup_content.add_widget(close_button)
+
+        popup = Popup(
+            title=title,
+            content=popup_content,
+            size_hint=(0.8, 0.5),
+            auto_dismiss=False,
+        )
+
+        close_button.bind(on_press=lambda instance: popup.dismiss())
+        close_button.bind(on_press=lambda instance: self.reset_game(instance))
+
+        popup.open()
 
 
 class CardGameApp(App):
