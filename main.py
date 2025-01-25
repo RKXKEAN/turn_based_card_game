@@ -179,7 +179,7 @@ class TurnBasedCardGame(BoxLayout):
 
         # Cards
         self.cards_area = BoxLayout(
-            size_hint=(0.5, 2),
+            size_hint=(1, 2),
             padding=[10, 10, 10, 10],
             spacing=20,
             pos_hint={"center_x": 0.5, "center_y": 0.5},
@@ -254,7 +254,7 @@ class TurnBasedCardGame(BoxLayout):
             return
         self.card_used = False
         self.cards_area.clear_widgets()
-        for _ in range(3):
+        for _ in range(5):
             card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"])
             card_value = random.randint(10, 20)
             card_text = f"{card_type} {card_value} "
