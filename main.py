@@ -14,7 +14,7 @@ from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
 
 
-class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เป็น FloatLayout
+class StartScreen(FloatLayout):
     def __init__(self, start_game_callback, **kwargs):
         super().__init__(**kwargs)
 
@@ -28,7 +28,6 @@ class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เ�
         )
         self.add_widget(background)
 
-        # ส่วนกลาง
         center_layout = BoxLayout(
             orientation="vertical",
             size_hint=(0.5, 0.5),
@@ -45,15 +44,16 @@ class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เ�
 
         center_layout.add_widget(space_label)
 
-        space2_label = Label(
-            text="",
-            font_size=40,
-            bold=True,
-            color=[1, 1, 1, 1],
-            size_hint=(1, 10),
+        space2_label = Button(
+            text="Made by: ROYKEAN",
+            size_hint=(0.15, 0.1),
+            font_size=18,
+            pos_hint={"right": 0.2, "top": 0.1},
+            background_color=[0, 0, 0, 0],
+            color=[1, 0.8, 0.3, 0.8],
         )
 
-        center_layout.add_widget(space2_label)
+        self.add_widget(space2_label)
         title_label = Label(
             text="",
             font_size=100,
@@ -75,10 +75,79 @@ class StartScreen(FloatLayout):  # เปลี่ยนจาก BoxLayout เ�
         play_button.bind(on_press=start_game_callback)
         center_layout.add_widget(play_button)
 
+        help_button = Button(
+            text="[b][i]Help[/i][/b]",
+            markup=True,
+            size_hint=(0.15, 0.1),
+            font_size=24,
+            pos_hint={"right": 0.95, "top": 0.95},
+            background_color=[0, 0, 0, 0],
+            color=[1, 0.8, 0.3, 0.8],
+        )
+        help_button.bind(on_press=self.show_help)
+        self.add_widget(help_button)
+
         self.add_widget(center_layout)
 
+    def show_help(self, instance):
+        help_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
 
-from kivy.uix.floatlayout import FloatLayout
+        # help
+        help_text = Label(
+            text="How to play:\n\n"
+            "1. Use cards to attack, heal, or defend.\n\n"
+            "2. Special Attack can be used once per game.\n\n"
+            "3. Defend reduces damage taken.\n\n"
+            "4. Buff increases your attack power.\n\n"
+            "5. Debuff reduces enemy attack power.",
+            font_size=20,
+        )
+        help_layout.add_widget(help_text)
+
+        close_button = Button(text="Close", size_hint=(1, 0.2))
+        close_button.bind(on_press=lambda instance: help_popup.dismiss())
+        help_layout.add_widget(close_button)
+
+        help_popup = Popup(
+            title="Help",
+            content=help_layout,
+            size_hint=(0.8, 0.6),
+            auto_dismiss=False,
+        )
+        help_popup.open()
+
+
+class Level:
+    def __init__(self, name, background_image, enemies):
+        self.name = name
+        self.background_image = background_image
+        self.enemies = enemies
+
+
+class Enemy:
+    def __init__(self, name, image_source):
+        self.name = name
+        self.image_source = image_source
+
+
+forest_enemies = [
+    Enemy("Eclipt", "kk.png"),
+    Enemy("Shadow", "hhh.png"),
+]
+
+hell_enemies = [
+    Enemy("Blaze", "blz.png"),
+]
+
+snow_enemies = [
+    Enemy("Ice Golem", "sm.png"),
+]
+
+levels = [
+    Level("Forest", "for.jpg", forest_enemies),
+    Level("Desert", "hel.jpg", hell_enemies),
+    Level("Snow", "trun.jpg", snow_enemies),
+]
 
 
 class TurnBasedCardGame(FloatLayout):
@@ -86,9 +155,10 @@ class TurnBasedCardGame(FloatLayout):
         super().__init__(**kwargs)
         self.reset_game_callback = reset_game_callback
         self.go_to_main_menu_callback = go_to_main_menu_callback
-
+        self.current_level = random.choice(levels)
+        self.current_enemy = random.choice(self.current_level.enemies)
         background2 = Image(
-            source="for.jpg",
+            source=self.current_level.background_image,
             allow_stretch=True,
             keep_ratio=False,
             size_hint=(1, 1),
@@ -96,7 +166,6 @@ class TurnBasedCardGame(FloatLayout):
         )
         self.add_widget(background2)
 
-        # Initialize attributes
         self.player_hp = 100
         self.enemy_hp = 100
         self.player_defense = 0
@@ -110,40 +179,39 @@ class TurnBasedCardGame(FloatLayout):
         self.special_used = False
         self.is_paused = False
 
-        # Top-right layout for Pause and Reset buttons
         top_controls = FloatLayout(size_hint=(1, 0.4), pos_hint={"top": 1, "right": 1})
         self.pause_button = Button(
             text="PAUSE GAME",
-            font_size=24,
+            font_size=20,
             background_color=[0, 0, 0, 0],
             bold=True,
             color=[1, 0.8, 0.3, 0.8],
-            size_hint=(0.2, 0.2),
-            pos_hint={"right": 0.6, "top": 1},
+            size_hint=(0.1, 0.1),
+            pos_hint={"right": 0.45, "top": 1},
         )
         self.pause_button.bind(on_press=self.toggle_pause)
         top_controls.add_widget(self.pause_button)
 
         self.reset_button = Button(
             text="RESET GAME",
-            font_size=24,
+            font_size=20,
             background_color=[0, 0, 0, 0],
             bold=True,
             color=[1, 0.8, 0.3, 0.8],
-            size_hint=(0.2, 0.2),
-            pos_hint={"right": 0.4, "top": 1},
+            size_hint=(0.1, 0.1),
+            pos_hint={"right": 0.3, "top": 1},
         )
         self.reset_button.bind(on_press=self.reset_game)
         top_controls.add_widget(self.reset_button)
 
         self.main_menu_button = Button(
             text="MAIN MENU",
-            font_size=24,
+            font_size=20,
             background_color=[0, 0, 0, 0],
             bold=True,
             color=[1, 0.8, 0.3, 0.8],
-            size_hint=(0.2, 0.2),
-            pos_hint={"right": 0.2, "top": 1},
+            size_hint=(0.1, 0.1),
+            pos_hint={"right": 0.15, "top": 1},
         )
         self.main_menu_button.bind(on_press=self.go_to_main_menu)
         top_controls.add_widget(self.main_menu_button)
@@ -154,10 +222,20 @@ class TurnBasedCardGame(FloatLayout):
         self.enemy_hp_bar = ProgressBar(
             max=100, value=self.enemy_hp, size_hint=(1, 0.1), pos_hint={"top": 0.76}
         )
+        self.eneny_name = Button(
+            text=self.current_enemy.name,
+            font_size=20,
+            background_color=[0, 0, 0, 0],
+            bold=True,
+            color=[1, 0, 0, 1],
+            size_hint=(0.1, 0.1),
+            pos_hint={"right": 0.38, "top": 0.82},
+        )
+        self.add_widget(self.eneny_name)
         self.enemy_character = Image(
-            source="kk.png",  # เปลี่ยนเป็นชื่อไฟล์ภาพตัวละคร
+            source=self.current_enemy.image_source,  # เปลี่ยนเป็นชื่อไฟล์ภาพตัวละคร
             size_hint=(None, None),
-            size=(200, 200),  # ขนาดของตัวละคร
+            size=(170, 170),  # ขนาดของตัวละคร
             pos_hint={"center_x": 0.2, "center_y": 0.82},  # ตำแหน่ง
         )
         self.enemy_hp_label = Label(
@@ -181,14 +259,22 @@ class TurnBasedCardGame(FloatLayout):
             size_hint=(0.3, 0.1),
             pos_hint={"top": 0.6, "right": 0.65},
         )
-
+        self.player_name = Button(
+            text="YOU",
+            font_size=20,
+            background_color=[0, 0, 0, 0],
+            bold=True,
+            color=[1, 1, 1, 1],
+            size_hint=(0.1, 0.1),
+            pos_hint={"right": 0.77, "top": 0.6},
+        )
         self.player_character = Image(
             source="ll.png",  # เปลี่ยนเป็นชื่อไฟล์ภาพตัวละคร
             size_hint=(None, None),
-            size=(200, 200),  # ขนาดของตัวละคร
+            size=(170, 170),  # ขนาดของตัวละคร
             pos_hint={"center_x": 0.8, "center_y": 0.6},  # ตำแหน่ง
         )
-
+        self.add_widget(self.player_name)
         self.add_widget(self.player_character)
         self.add_widget(self.player_hp_bar)
         self.add_widget(self.player_hp_label)
@@ -211,7 +297,6 @@ class TurnBasedCardGame(FloatLayout):
         )
         self.add_widget(self.cards_area)
 
-        # Layout for special attack and turn controls
         controls_layout = BoxLayout(
             orientation="vertical", size_hint=(1, 0.1), pos_hint={"top": 0.13}
         )
@@ -227,7 +312,6 @@ class TurnBasedCardGame(FloatLayout):
         self.special_button.bind(on_press=self.special_attack)
         controls_layout.add_widget(self.special_button)
 
-        # Layout for Skip Turn and End Turn
         bottom_controls = BoxLayout(
             size_hint=(1, 2),
             spacing=20,
@@ -327,19 +411,17 @@ class TurnBasedCardGame(FloatLayout):
         self.card_used = True
 
         def apply_effect(button):
-            # เปลี่ยนสีพื้นหลังชั่วคราว
-            button.background_color = [1, 0.5, 0.5, 1]  # สีชมพู
+
+            button.background_color = [1, 0.5, 0.5, 1]
             anim = Animation(
                 size=(button.size[0] + 20, button.size[1] + 20), duration=0.2
             ) + Animation(size=button.size, duration=0.2)
             anim.start(button)
 
-            # กลับมาสู่สีเดิม
             Clock.schedule_once(
                 lambda dt: setattr(button, "background_color", [1, 1, 1, 1]), 0.5
             )
 
-        # เพิ่มเอฟเฟกต์ให้กับการ์ดที่กด
         for child in self.cards_area.children:
             if f"{card_type} {card_value} " in child.text:
                 apply_effect(child)
@@ -372,7 +454,7 @@ class TurnBasedCardGame(FloatLayout):
 
         self.update_score()
         self.card_used = True
-        self.update_hp_labels()  # Update HP labels after using a card
+        self.update_hp_labels()
         self.check_game_over()
 
     def special_attack(self, instance):
@@ -433,7 +515,7 @@ class TurnBasedCardGame(FloatLayout):
             self.enemy_attack_debuff = 0
 
             self.update_score()
-            self.update_hp_labels()  # Update HP labels after enemy's turn
+            self.update_hp_labels()
             self.check_game_over()
 
     def end_turn(self, instance):
@@ -491,9 +573,9 @@ class CardGameApp(App):
     def build(self):
         self.background_music = SoundLoader.load("viking.mp3")
         if self.background_music:
-            self.background_music.loop = True  # ทำให้เล่นซ้ำอัตโนมัติ
-            self.background_music.volume = 1  # ตั้งระดับเสียง (ค่าระหว่าง 0 ถึง 1)
-            self.background_music.play()  # เริ่มเล่นเพลง
+            self.background_music.loop = True
+            self.background_music.volume = 1
+            self.background_music.play()
         self.root_widget = BoxLayout()
         self.start_screen = StartScreen(self.start_game)
         self.root_widget.add_widget(self.start_screen)
@@ -513,7 +595,6 @@ class CardGameApp(App):
         self.start_game()
 
     def on_stop(self):
-        # หยุดเพลงเมื่อแอปปิด
         if self.background_music:
             self.background_music.stop()
 
