@@ -88,7 +88,9 @@ class TurnBasedCardGame(BoxLayout):
         self.player_hp = 100
         self.enemy_hp = 100
         self.player_defense = 0
+        self.enemy_defense = 0
         self.enemy_attack_debuff = 0
+        self.player_attack_debuff = 0
         self.player_attack_buff = 0
         self.enemy_attack_buff = 0
         self.score = 0
@@ -371,7 +373,7 @@ class TurnBasedCardGame(BoxLayout):
     def enemy_turn(self):
         if self.enemy_hp > 0:
             card_type = random.choice(["ATTACK", "HEAL", "DEFEND", "DEBUFF", "BUFF"])
-            card_value = random.randint(10, 20)
+            card_value = random.randint(30, 40)
 
             if card_type == "ATTACK":
                 damage = max(
