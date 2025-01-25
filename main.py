@@ -130,9 +130,10 @@ class Enemy:
 
 
 forest_enemies = [
-    Enemy("Eclipt", "kk.png"),
     Enemy("Shadow", "hhh.png"),
 ]
+
+castel_enemy = [Enemy("Eclipt", "kk.png")]
 
 hell_enemies = [
     Enemy("Blaze", "blz.png"),
@@ -146,6 +147,7 @@ levels = [
     Level("Forest", "for.jpg", forest_enemies),
     Level("Desert", "hel.jpg", hell_enemies),
     Level("Snow", "trun.jpg", snow_enemies),
+    Level("castle", "cas.png", castel_enemy),
 ]
 
 
