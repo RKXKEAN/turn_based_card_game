@@ -18,7 +18,6 @@ class StartScreen(FloatLayout):
     def __init__(self, start_game_callback, **kwargs):
         super().__init__(**kwargs)
 
-        # พื้นหลัง
         background = Image(
             source="809633.jpg",
             allow_stretch=True,
@@ -54,15 +53,15 @@ class StartScreen(FloatLayout):
         )
 
         self.add_widget(space2_label)
-        title_label = Label(
-            text="",
-            font_size=100,
-            bold=True,
-            color=[1, 1, 1, 1],
-            size_hint=(1, 10),
+        space_label = Button(
+            text="Under development",
+            size_hint=(0.15, 0.1),
+            font_size=18,
+            pos_hint={"right": 0.95, "top": 0.1},
+            background_color=[0, 0, 0, 0],
+            color=[1, 0.8, 0.3, 0.8],
         )
-        center_layout.add_widget(title_label)
-
+        self.add_widget(space_label)
         play_button = Button(
             text="[b][i]Play[/i][/b]",
             markup=True,
