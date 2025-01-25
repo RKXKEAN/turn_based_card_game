@@ -85,12 +85,11 @@ class TurnBasedCardGame(BoxLayout):
         self.go_to_main_menu_callback = go_to_main_menu_callback
 
         # Initialize attributes
-        self.player_hp = 100
-        self.enemy_hp = 100
+        self.player_hp = 200
+        self.enemy_hp = 200
         self.player_defense = 0
         self.enemy_defense = 0
         self.enemy_attack_debuff = 0
-        self.player_attack_debuff = 0
         self.player_attack_buff = 0
         self.enemy_attack_buff = 0
         self.score = 0
