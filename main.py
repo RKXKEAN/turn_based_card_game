@@ -44,7 +44,8 @@ class StartScreen(FloatLayout):
         center_layout.add_widget(space_label)
 
         space2_label = Button(
-            text="Made by: ROYKEAN",
+            text="[b][i]Made by: ROYKEAN[/i][b]",
+            markup=True,
             size_hint=(0.15, 0.1),
             font_size=18,
             pos_hint={"right": 0.2, "top": 0.1},
@@ -54,7 +55,8 @@ class StartScreen(FloatLayout):
 
         self.add_widget(space2_label)
         space_label = Button(
-            text="Under development",
+            text="[b][i]Under development[/b][/i]",
+            markup=True,
             size_hint=(0.15, 0.1),
             font_size=18,
             pos_hint={"right": 0.95, "top": 0.1},

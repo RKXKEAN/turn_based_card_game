@@ -26,6 +26,7 @@ This is a turn-based card game where players battle against an AI-controlled ene
 - StartScreen
     Purpose: The main menu screen where players can start the game or view help.
     Functions:
+    
         show_help(): Displays a popup with instructions on how to play the game.
 
 - TurnBasedCardGame
