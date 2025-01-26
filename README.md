@@ -25,14 +25,16 @@ This is a turn-based card game where players battle against an AI-controlled ene
 ## Function Descriptions
 - StartScreen
     Purpose: The main menu screen where players can start the game or view help.
-    Functions:
     
+    Functions:
+
         show_help(): Displays a popup with instructions on how to play the game.
 
 - TurnBasedCardGame
     Purpose: The main game screen where players battle the enemy.
 
     Functions:
+
         generate_cards(): Randomly generates 5 cards for the player to use.
 
         use_card(card_type, card_value): Applies the effect of the selected card.
